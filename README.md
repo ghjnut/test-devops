@@ -39,3 +39,66 @@ Execute (GitHub interactions currently disabled)
 
 	$ ./bin/docker_run_git.sh
 	$ ./bin/git_repo_setup.sh
+
+
+2. Access Control Management (TF)
+requires `tf/applications/*/terraform-private-key.json` for provisioning permissions (see initial auth below)
+
+See (./tf/applications/access_control/README.md)
+
+		$ ./bin/terraform.sh
+		$ terraform init && terraform plan -var-file env/dev.tfvars
+
+3. CI/CD (TF)
+requires `tf/applications/*/terraform-private-key.json` for provisioning permissions (see initial auth below)
+
+		docker build --tag test-terraform -f ./Dockerfile.terraform .
+
+		docker run --rm -it \
+			-v $(pwd):/mnt \
+			-w /mnt/tf/applications/cicd \
+			test-terraform \
+				sh -c 'terraform init && terraform plan -var-file env/terraform.tfvars'
+
+4. Infra as Code (TF)
+requires `tf/applications/*/terraform-private-key.json` for provisioning permissions (see initial auth below)
+
+		docker build --tag test-terraform -f ./Dockerfile.terraform .
+
+		docker run --rm -it \
+			-w /mnt/tf/applications/iac \
+		-v $(pwd):/mnt \
+			test-terraform \
+				sh -c 'terraform init && terraform plan -var-file env/terraform.tfvars'
+
+
+### GCP TF initial auth
+
+Create
+
+	$ gcloud iam service-accounts create terraform
+
+[enable IAM API](https://console.cloud.google.com/apis/enableflow?apiid=iam.googleapis.com)
+
+Set default project
+
+	$ gcloud config set project codetest-406510
+	Updated property [core/project].
+
+	create token key
+	$ gcloud iam service-accounts keys create ./terraform-private-key.json --iam-account=terraform@codetest-406510.iam.gserviceaccount.com
+	created key [96f9d98685e8404d9beb4038311e0378bf37aefe] of type [json] as [./terraform-private-key.json] for [terraform@codetest-406510.iam.gserviceaccount.com]
+
+bind service account to role
+
+	[ghjnut@derek frontera]$ gcloud projects add-iam-policy-binding codetest-406510 --member="serviceAccount:terraform@codetest-406510.iam.gserviceaccount.com" --role="roles/owner"
+	Updated IAM policy for project [codetest-406510].
+	bindings:
+	- members:
+	  - serviceAccount:terraform@codetest-406510.iam.gserviceaccount.com
+	  - user:<REDACTED>
+	  role: roles/owner
+	etag: BwYLQ7RAVuE=
+	version: 1
+
+[enable cloud resource manager api](https://console.cloud.google.com/apis/library/cloudresourcemanager.googleapis.com)
