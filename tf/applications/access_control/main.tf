@@ -40,6 +40,7 @@ resource "google_project_iam_custom_role" "machine_learning" {
   permissions = [""]
 }
 
+# okay to use because we're using a custom role we have full control of
 resource "google_project_iam_binding" "data_member" {
   project = var.google_project_id
   #project = data.google_project.test.project_id
