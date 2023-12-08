@@ -47,29 +47,22 @@ requires `tf/applications/*/terraform-private-key.json` for provisioning permiss
 See (./tf/applications/access_control/README.md)
 
 		$ ./bin/terraform.sh
+		$ cd tf/applications/access_control
 		$ terraform init && terraform plan -var-file env/dev.tfvars
 
 3. CI/CD (TF)
 requires `tf/applications/*/terraform-private-key.json` for provisioning permissions (see initial auth below)
 
-		docker build --tag test-terraform -f ./Dockerfile.terraform .
-
-		docker run --rm -it \
-			-v $(pwd):/mnt \
-			-w /mnt/tf/applications/cicd \
-			test-terraform \
-				sh -c 'terraform init && terraform plan -var-file env/terraform.tfvars'
+		$ ./bin/terraform.sh
+		$ cd tf/applications/cicd
+		$ terraform init && terraform plan -var-file env/dev.tfvars
 
 4. Infra as Code (TF)
 requires `tf/applications/*/terraform-private-key.json` for provisioning permissions (see initial auth below)
 
-		docker build --tag test-terraform -f ./Dockerfile.terraform .
-
-		docker run --rm -it \
-			-w /mnt/tf/applications/iac \
-		-v $(pwd):/mnt \
-			test-terraform \
-				sh -c 'terraform init && terraform plan -var-file env/terraform.tfvars'
+		$ ./bin/terraform.sh
+		$ cd tf/applications/iac
+		$ terraform init && terraform plan -var-file env/dev.tfvars
 
 
 ### GCP TF initial auth
